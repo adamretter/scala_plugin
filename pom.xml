@@ -4,13 +4,19 @@
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
     <version>1.447</version><!-- which version of Jenkins is this plugin built against? -->
-	
   </parent>
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>scala_plgn</artifactId>
   <version>1.0</version>
   <packaging>hpi</packaging>
+  
+  <url>http://wiki.jenkins-ci.org/display/JENKINS/Scala+Plugin</url>
+  <scm>
+    <connection>scm:git:ssh://github.com/Chemmo/scala_plugin.git</connection>
+    <developerConnection>scm:git:ssh://chemmo@github.com/Chemmo/scala_plugin.git</developerConnection>
+    <url>https://github.com/Chemmo/scala_plugin</url>
+  </scm>
   
   <dependencies>
     <dependency>
@@ -25,5 +31,12 @@
 	</dependency>
   </dependencies>
 
-
-</project>
+  <developers>
+    <developer>
+	  <id>Chemmo</id>
+	  <name>David</name>
+	  <email>chemmo@gmail.com</name>
+	</developer>
+  </developers>
+  
+ </project>
