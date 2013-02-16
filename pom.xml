@@ -13,8 +13,8 @@
   
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Scala+Plugin</url>
   <scm>
-    <connection>scm:git:ssh://github.com/Chemmo/scala_plugin.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/Chemmo/scala_plugin.git</developerConnection>
+    <connection>scm:git:git://github.com/Chemmo/scala_plugin.git</connection>
+    <developerConnection>scm:git:git://git@github.com/Chemmo/scala_plugin.git</developerConnection>
     <url>https://github.com/Chemmo/scala_plugin</url>
   </scm>
   
