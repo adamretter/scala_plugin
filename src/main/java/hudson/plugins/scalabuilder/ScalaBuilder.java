@@ -28,12 +28,12 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class ScalaBuilder extends Builder {
     
-    private boolean debug;
     private String libDir;
     private SourceBlock sourceBlock;
+    private String pathToScala;
+    private boolean debug;
     private int port;
     private boolean suspend;
-    private String pathToScala;
 
     @DataBoundConstructor
     public ScalaBuilder(final String libDir, final SourceBlock sourceBlock, final String pathToScala,
@@ -62,16 +62,20 @@ public class ScalaBuilder extends Builder {
         this.suspend = suspend;
     }
 
-    public boolean getDebug() {
-        return debug;
-    }
-
     public String getLibDir() {
         return libDir;
     }
 
     public SourceBlock getSourceBlock() {
         return sourceBlock;
+    }
+    
+    public String getPathToScala() {
+        return pathToScala;
+    }
+    
+    public boolean getDebug() {
+        return debug;
     }
     
     public String getPort() {
@@ -82,14 +86,6 @@ public class ScalaBuilder extends Builder {
         return suspend;
     }
 
-    public String getPathToScala() {
-        return pathToScala;
-    }
-
-    public void setDebug(final boolean setDebug) {
-        this.debug = setDebug;
-    }
-
     public void setLibDir(final String libDir) {
         this.libDir = libDir;
     }
@@ -98,16 +94,20 @@ public class ScalaBuilder extends Builder {
         this.sourceBlock = sourceBlock;
     }
 
+    public void setPathToScala(final String pathToScala) {
+        this.pathToScala = pathToScala;
+    }
+    
+    public void setDebug(final boolean setDebug) {
+        this.debug = setDebug;
+    }
+    
     public void setPort(final String port) {
         this.port = Integer.parseInt(port);
     }
 
     public void setSuspend(final boolean suspend) {
         this.suspend = suspend;
-    }
-
-    public void setPathToScala(final String pathToScala) {
-        this.pathToScala = pathToScala;
     }
 
     /**
