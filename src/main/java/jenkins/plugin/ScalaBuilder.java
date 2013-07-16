@@ -269,7 +269,7 @@ public class ScalaBuilder extends Builder {
 
 		@Override
 		public String getDisplayName() {
-			return "Execute scala script";
+			return "Execute Scala script";
 		}
 
 		public FormValidation doCheckLibDir(StaplerRequest req,
