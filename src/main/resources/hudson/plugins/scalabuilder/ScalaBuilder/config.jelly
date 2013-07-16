@@ -25,18 +25,33 @@
     <f:textbox />
   </f:entry>
   
-   <!--
-    Creates a text area that maps the value of the "pathToScala" property.
+  <!--
+    Creates a text field that maps the value of the "pathToScala" property.
   -->
   <f:entry title="Path to scala" field="pathToScala">
     <f:textbox />
   </f:entry>  
   
-  <!--
-    Creates a text area that maps the value of the "src" property.
-  -->
-  <f:entry title="Scala source code" field="src">
-    <f:textarea />
-  </f:entry>
+  <f:section title="Source Code">
+    <!-- st:include page="config.jelly" class="hudson.plugins.scalabuilder.SourceBlock"/ -->
+    <!-- st:include from="hudson.plugins.scalabuilder.SourceBlock.descriptor" page="config.jelly" class="hudson.plugins.scalabuilder.SourceBlock"/ -->
+    
+    <f:radioBlock name="sourceBlock" value="true" title="URL" checked="${instance.getSourceBlock().isUrlSource()}">
+      <!--
+      Creates a text field that maps the valud of "srcUrl"
+      -->
+      <f:entry title="URL to .scala file" field="srcUrl">
+        <f:textbox />
+      </f:entry>
+    </f:radioBlock>  
+    <f:radioBlock name="sourceBlock" value="false" title="Inline Script" checked="${!instance.getSourceBlock().isUrlSource()}">
+      <!--
+        Creates a text area that maps the value of the "src" property.
+      -->
+      <f:entry title="Scala source code" field="srcInline">
+        <f:textarea />
+      </f:entry>
+    </f:radioBlock>
+  </f:section>
   
 </j:jelly>

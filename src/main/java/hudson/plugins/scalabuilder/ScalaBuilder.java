@@ -17,9 +17,9 @@ import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-
-import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -27,36 +27,39 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class ScalaBuilder extends Builder {
-
+    
     private boolean debug;
     private String libDir;
-    private String src;
-    private String port;
+    private SourceBlock sourceBlock;
+    private int port;
     private boolean suspend;
     private String pathToScala;
 
     @DataBoundConstructor
-    public ScalaBuilder(final String libDir, final String src, 
-        final String pathToScala, final boolean debug, final String port,
-        final boolean suspend) {
+    public ScalaBuilder(final String libDir, final SourceBlock sourceBlock, final String pathToScala,
+        final boolean debug, final String port, final boolean suspend) {
             
         this.libDir = libDir;
-        this.src = src;
-        this.debug = debug;
-        this.port = port;
-        
-        if(this.debug && this.port.isEmpty()) {
-            System.out.println("Warning, setting to randomly generated port as none specified");
-            this.port = "0";
-        }
-        
-        this.suspend = suspend;
+        this.sourceBlock = sourceBlock;
         
         if(pathToScala.isEmpty()) {
             this.pathToScala = "scala";
         } else {
             this.pathToScala = pathToScala;
         }
+        
+        this.debug = debug;
+        
+        if(port == null || port.isEmpty()) {
+            this.port = 0;
+            if(this.debug) {
+                System.out.println("Warning, setting to randomly generated port as none specified");
+            }
+        } else {
+            this.port = Integer.parseInt(port);
+        }
+        
+        this.suspend = suspend;
     }
 
     public boolean getDebug() {
@@ -67,12 +70,12 @@ public class ScalaBuilder extends Builder {
         return libDir;
     }
 
-    public String getSrc() {
-        return src;
+    public SourceBlock getSourceBlock() {
+        return sourceBlock;
     }
-
+    
     public String getPort() {
-        return port;
+        return Integer.toString(port);
     }
 
     public boolean getSuspend() {
@@ -91,16 +94,16 @@ public class ScalaBuilder extends Builder {
         this.libDir = libDir;
     }
 
-    public void setSrc(final String src) {
-        this.src = src;
+    public void setSourceBlock(final SourceBlock sourceBlock) {
+        this.sourceBlock = sourceBlock;
     }
 
     public void setPort(final String port) {
-        this.port = port;
+        this.port = Integer.parseInt(port);
     }
 
     public void setSuspend(final boolean suspend) {
-            this.suspend = suspend;
+        this.suspend = suspend;
     }
 
     public void setPathToScala(final String pathToScala) {
@@ -114,8 +117,16 @@ public class ScalaBuilder extends Builder {
     private FilePath createScriptFile(final FilePath dir) throws IOException,
         InterruptedException {
         
-        return dir.createTextTempFile("jenkins", ".scala",
-            "println(\"Running user source...\");" + src, false);
+        final FilePath filePath;
+        if(getSourceBlock().isUrlSource()) {
+            final URL url = new URL(getSourceBlock().getSrcUrl());
+            filePath = dir.createTempFile("jenkins", ".scala");
+            filePath.copyFrom(url);
+        } else {
+            filePath = dir.createTextTempFile("jenkins", ".scala", getSourceBlock().getSrcUrl(), false);
+        }
+        
+        return filePath;
     }
 
     private String getClasspathStringFromDir(final String dir, final boolean isUnix) {
@@ -284,7 +295,7 @@ public class ScalaBuilder extends Builder {
 
     @Extension
     public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
-
+        
         @Override
         public boolean isApplicable(final Class<? extends AbstractProject> jobType) {
             return true;
@@ -316,29 +327,37 @@ public class ScalaBuilder extends Builder {
             
             return FormValidation.ok();
         }
-
-        @Override
-        public Builder newInstance(final StaplerRequest req,
-            final JSONObject formData) throws hudson.model.Descriptor.FormException {
-            // this will be null if debug checkbox has not been selected, which
-            // decides what we instantiate ScalaBuilder with
-            final JSONObject s = formData.getJSONObject("debug");
-            // user hasnt selected to debug, just pass in src and path info
+        
+        public FormValidation doCheckPort(final StaplerRequest req,
+            @AncestorInPath final AbstractProject context,
+            @QueryParameter final String value) {
             
-            final Builder builder;
-            if(s.isNullObject()) {
-                builder = new ScalaBuilder(formData.getString("libDir"),
-                    formData.getString("src"),
-                    formData.getString("pathToScala"), false, null, false);
-            } else {
-                // user wants to debug, get port/suspend info
-                builder = new ScalaBuilder(formData.getString("libDir"),
-                    formData.getString("src"),
-                    formData.getString("pathToScala"), true,
-                    s.getString("port"), s.getBoolean("suspend"));
-                // return req.bindJSON(clazz, formData);
+            FormValidation validationResult;
+            try {
+                final int port = Integer.parseInt(value);
+                if(port < 1 || port > 65535) {
+                    validationResult = FormValidation.error("The entered TCP Port must be between 1 and 65,535 inclusive! Please enter a valid TCP Port number...");
+                } else {
+                    validationResult = FormValidation.ok();
+                }
+            } catch(final NumberFormatException nfe) {
+                validationResult = FormValidation.error("The entered TCP Port is not a valid number! Please enter a valid TCP Port number...");
             }
-            return builder;
+            return validationResult;
+        }
+        
+        public FormValidation doCheckSrcUrl(final StaplerRequest req,
+            @AncestorInPath final AbstractProject context,
+            @QueryParameter final String value) {
+            
+            FormValidation validationResult;
+            try {
+                final URL url = new URL(value);
+                validationResult = FormValidation.ok();
+            } catch(final MalformedURLException mue) {
+                validationResult = FormValidation.error("The entered URL is invalid! Please enter a valid URL...");
+            }
+            return validationResult;
         }
     }
 }
