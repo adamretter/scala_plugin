@@ -1,4 +1,4 @@
-package htd.jnkns;
+package hudson.plugins.scalabuilder;
 
 import hudson.EnvVars;
 import hudson.Extension;
